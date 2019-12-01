@@ -1,9 +1,9 @@
-#ifndef CMAKE_MSGPACKSEARCH_H
-#define CMAKE_MSGPACKSEARCH_H
+#ifndef CMAKE_NOTEPUSH_H
+#define CMAKE_NOTEPUSH_H
 
 #include <iostream>
 
-namespace msgpacksearch {
+namespace notepush {
 
 void test() {
 
@@ -14,4 +14,4 @@ void test() {
 }
 
 
-#endif //CMAKE_MSGPACKSEARCH_H
+#endif //CMAKE_NOTEPUSH_H
