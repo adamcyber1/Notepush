@@ -1,6 +1,6 @@
 #include "notepush.h"
 
-namespace notepush {
-
-  
-}
+namespace notepush
+{
+    
+} // namespace name
