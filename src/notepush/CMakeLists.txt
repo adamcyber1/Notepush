@@ -8,5 +8,7 @@ set(SOURCE_FILES
 
 add_library(notepush ${SOURCE_FILES})
 
+target_link_libraries(notepush PUBLIC libgit2)
+
 install(TARGETS notepush DESTINATION ${NOTEPUSH_INSTALL_LIB_DIR})
 install(FILES notepush.h DESTINATION ${NOTEPUSH_INSTALL_INCLUDE_DIR})

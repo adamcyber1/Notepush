@@ -1,11 +1,13 @@
-cmake_minimum_required(VERSION 3.10)
-cmake_policy(VERSION 3.10)
+cmake_minimum_required(VERSION 3.11)
+cmake_policy(VERSION 3.11)
+
+project(Notepush)
 
 if (NOT (UNIX))
   message(FATAL_ERROR "unsupported target platform...windows isn't supported yet")
 endif()
 
-project(notepush)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # languages
 enable_language(CXX)
@@ -43,6 +45,10 @@ include_directories(${NOTEPUSH_HEADERS_DIR})
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
 add_subdirectory(src)
+
+find_package(Gtest REQUIRED)
+find_package(Git2 REQUIRED)
+
 
 if(BUILD_TESTS)
   add_subdirectory(tests)
