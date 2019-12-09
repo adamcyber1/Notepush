@@ -2,6 +2,8 @@
 #include <main.h>
 #include <algorithm>
 #include <string>
+#include <git2.h>
+#include <gtest/gtest.h>
 
 char *getCmdOption(char **begin, char **end, const std::string &option)
 {
