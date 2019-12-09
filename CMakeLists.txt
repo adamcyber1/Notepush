@@ -44,11 +44,8 @@ include_directories(${NOTEPUSH_INSTALL_INCLUDE_DIR})
 include_directories(${NOTEPUSH_HEADERS_DIR})
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
-find_package(Gtest REQUIRED)
 find_package(Git2 REQUIRED)
 
 add_subdirectory(src)
 
-if(BUILD_TESTS)
-  add_subdirectory(tests)
-endif()
+add_subdirectory(test)
