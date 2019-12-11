@@ -1,9 +1,10 @@
 #include <notepush.h>
 #include <main.h>
-#include <algorithm>
 #include <string>
 #include <git2.h>
-#include <gtest/gtest.h>
+#include <algorithm>
+#include <iostream>
+
 
 char *getCmdOption(char **begin, char **end, const std::string &option)
 {
@@ -30,6 +31,13 @@ int main(int argc, char *argv[])
     std::cout<<HEADER<<USAGE<<"\n";
     return 0;
   }
+
+  /*
+
+  On the first boot, load the config file
+
+  */
+  std::cout<<"hey";
 
   char *filename = getCmdOption(argv, argv + argc, "-f");
 

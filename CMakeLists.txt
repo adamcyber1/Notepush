@@ -14,6 +14,17 @@ enable_language(CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1z -O0 -Wall")
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "9.0")
+    message(FATAL_ERROR "Insufficient gcc version")
+  endif()
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+  if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "your.required.msvc.version")
+    message(FATAL_ERROR "Insufficient msvc version")
+  endif()
+elseif(...)
+endif()
+
 # options
 option(BUILD_SHARED_LIBS "Build shared library" ON)
 option(BUILD_TESTS "Build Tests" OFF)
