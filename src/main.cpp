@@ -7,12 +7,37 @@
 #include <filesystem>
 #include <fstream>
 #include <unordered_set>
-
+#include <chrono>
 
 struct Options
 {
-  std::string repo; // directory of the 
+  std::string repo;
 };
+
+char* get_current_time()
+{
+  std::time_t time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+
+  return std::ctime(&time);
+}
+
+void write_note(const std::string& path, const std::string& note)
+{  
+     std::fstream outfile;
+     outfile.open(path, std::ios::out | std::ios::app);
+
+     outfile << get_current_time();// time has trailing '\n' built-in
+     outfile << note << '\n\n'; 
+
+     if (outfile.fail())
+     {
+       std::cerr << "Failure writing to file: " << path << ".\n";
+       std::cerr << "This is usually caused by insufficient write permissions.\n"; 
+     }
+
+     outfile.close();
+
+}
 
 git_commit * getLastCommit ( git_repository * repo )
 {
@@ -120,7 +145,6 @@ int main(int argc, char *argv[])
 
   int error;
   git_repository *repo = NULL;
-  std::cout << options.repo << "\n";
   error = git_repository_open_ext(&repo, &options.repo[0], GIT_REPOSITORY_OPEN_NO_SEARCH, NULL);
 
   if (error)
@@ -131,6 +155,8 @@ int main(int argc, char *argv[])
     return 1;
   }
 
+  /*
+
   // get the remotes
   git_strarray remotes = {0};
   error = git_remote_list(&remotes, repo);
@@ -139,20 +165,24 @@ int main(int argc, char *argv[])
 
   git_remote *remote;
 
+  */
+
   /* lookup the remote */
-  error = git_remote_lookup(&remote, repo, "origin");
-  error = git_remote_fetch(remote,
-                          NULL, /* refspecs, NULL to use the configured ones */
-                          NULL, /* options, empty for defaults */
-                          NULL); /* reflog mesage, usually "fetch" or "pull", you can leave it NULL for "fetch" */
+
+  // error = git_remote_lookup(&remote, repo, "origin");
+  // error = git_remote_fetch(remote,
+  //                         NULL, /* refspecs, NULL to use the configured ones */
+  //                         NULL, /* options, empty for defaults */
+  //                         NULL); /* reflog mesage, usually "fetch" or "pull", you can leave it NULL for "fetch" */
 
 
 
-  git_commit *head = getLastCommit(repo);
+  // git_commit *head = getLastCommit(repo);
 
-  const char *message = git_commit_message(head);
+  // const char *message = git_commit_message(head);
 
-  std::cout << message << "\n";
+  // std::cout << message << "\n";
+
 
   
   
@@ -162,7 +192,7 @@ int main(int argc, char *argv[])
 
   The repo will contain the following files:
 
-  General.txt - All of the notes with timestamps
+  general.txt - All of the notes with timestamps
   Topic1.txt - Any notes tagged with Topic1.
   Topic2.txt - Any notes tagged with Topic2.
   TopicN.txt - Any notes tagged with TopicN.
@@ -180,23 +210,16 @@ int main(int argc, char *argv[])
     {
       note << argv[i] << " ";
     }
-    
-   // std::cout<<"Argument: "<<argv[i]<<"\n";
   }
 
+  /// all notes get written to general. 
+  write_note(options.repo + "/general.txt", note.str());
 
-  /*
-  Git Interfacing: 
-
-  At this point, we have both the user's note and the associated tags. 
-  It is time to push the data to the relevant files in the git repo.
-  */
-
-  /* Start by push
-  
-  std::cout<<note.str()<<"\n";
-  /*  Regular Operation */
-  std::cout<<"Made it to regular operation wee \n";
+  /// write notes to their respective files
+  for (const auto& topic : topics)
+  {
+    write_note(options.repo + "/" + topic.substr(1) + ".txt", note.str());
+  }
 
   return 0;
 }
