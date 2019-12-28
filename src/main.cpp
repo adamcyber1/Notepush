@@ -1,3 +1,23 @@
+/*
+ * This file is part of Notepush.
+ * 
+ * See the COPYRIGHT file at the top-level directory of this distribution
+ * for details of code ownership.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include <notepush.h>
 #include <main.h>
 #include <string>
@@ -12,58 +32,12 @@
 
 struct Options
 {
-  std::string repo;
+  std::string repo;    // repository directory
   bool online = false; // offline mode - when true, connections to the remote will not be performed.
 };
 
-char *get_current_time()
-{
-  std::time_t time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 
-  return std::ctime(&time);
-}
-
-void write_note(const std::string &path, const std::string &note)
-{
-  std::fstream outfile;
-  outfile.open(path, std::ios::out | std::ios::app);
-
-  outfile << get_current_time(); // time has trailing '\n' built-in
-  outfile << note << '\n\n';
-
-  if (outfile.fail())
-  {
-    std::cerr << "Failure writing to file: " << path << ".\n";
-    std::cerr << "This is usually caused by insufficient write permissions.\n";
-  }
-
-  outfile.close();
-}
-
-git_commit *get_last_commit(git_repository *repo)
-{
-  int rc;
-  git_commit *commit = NULL; /* the result */
-  git_oid oid_parent_commit; /* the SHA1 for last commit */
-
-  /* resolve HEAD into a SHA1 */
-  rc = git_reference_name_to_id(&oid_parent_commit, repo, "HEAD");
-  if (rc == 0)
-  {
-    /* get the actual commit structure */
-    rc = git_commit_lookup(&commit, repo, &oid_parent_commit);
-    if (rc == 0)
-    {
-      return commit;
-    }
-  }
-  return NULL;
-}
-
-
-/// Option Handling
-
-char *getCmdOption(char **begin, char **end, const std::string &option)
+char *get_cmd_option(char **begin, char **end, const std::string &option)
 {
   char **itr = std::find(begin, end, option);
   if (itr != end && ++itr != end)
@@ -73,23 +47,22 @@ char *getCmdOption(char **begin, char **end, const std::string &option)
   return 0;
 }
 
-bool cmdOptionExists(char **begin, char **end, const std::string &option)
+bool cmd_option_exists(char **begin, char **end, const std::string &option)
 {
   return std::find(begin, end, option) != end;
 }
 
-/// End Option Handling
 
 int main(int argc, char *argv[])
 {
 
-  if (cmdOptionExists(argv, argv + argc, "-h"))
+  if (cmd_option_exists(argv, argv + argc, "-h"))
   {
     std::cout << HEADER << USAGE << "\n";
     return 0;
   }
 
-  if (cmdOptionExists(argv, argv + argc, "-r"))
+  if (cmd_option_exists(argv, argv + argc, "-r"))
   {
     std::string answer;
     std::cout << "Are you sure you want to reset your configuration? Y or N\n";
@@ -130,14 +103,8 @@ int main(int argc, char *argv[])
   /// load the options/config
   Options options;
 
-  if (cmdOptionExists(argv, argv + argc, "-o"))
-  {
-    options.online = true;
-    return 0;
-  }
+  options.online = cmd_option_exists(argv, argv + argc, "-o");
 
-
-  
   std::ifstream config_file("/etc/notepush/psh.config");
   std::string line;
   while (std::getline(config_file, line))
@@ -160,31 +127,6 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  /*
-
-  // get the remotes
-  git_strarray remotes = {0};
-  error = git_remote_list(&remotes, repo);
-
-  std::cout << remotes.strings[0] << std::endl;
-
-  git_remote *remote;
-
-  */
-
-  /* lookup the remote */
-
-  // error = git_remote_lookup(&remote, repo, "origin");
-  // error = git_remote_fetch(remote,
-  //                         NULL, /* refspecs, NULL to use the configured ones */
-  //                         NULL, /* options, empty for defaults */
-  //                         NULL); /* reflog mesage, usually "fetch" or "pull", you can leave it NULL for "fetch" */
-
-  // git_commit *head = get_last_commit(repo);
-
-  // const char *message = git_commit_message(head);
-
-  // std::cout << message << "\n";
 
   /*
   The user provides a note with hashtags being used as the topical indicators. 
@@ -196,7 +138,6 @@ int main(int argc, char *argv[])
   Topic2.txt - Any notes tagged with Topic2.
   TopicN.txt - Any notes tagged with TopicN.
   */
-
   std::stringstream note;
   std::unordered_set<std::string> topics;
 
@@ -205,6 +146,10 @@ int main(int argc, char *argv[])
     if (argv[i][0] == '@')
     {
       topics.emplace(std::string(argv[i]));
+    }
+    else if (argv[i][0] == '-' && argv[i][1] == 'o') //ignore -o option
+    {
+      continue;
     }
     else
     {
@@ -219,13 +164,22 @@ int main(int argc, char *argv[])
     return 0;
   }
 
+  if (options.online)
+  {
+    std::string command = "cd ";
+    command += options.repo;
+    command += "; git pull origin master";
+
+    system (&command[0]);
+  }
+
   /// all notes get written to general.
-  write_note(options.repo + "/general.txt", note.str());
+  notepush::write_note(options.repo + "/general.txt", note.str());
 
   /// write notes to their respective files
   for (const auto &topic : topics)
   {
-    write_note(options.repo + "/" + topic.substr(1) + ".txt", note.str());
+    notepush::write_note(options.repo + "/" + topic.substr(1) + ".txt", note.str());
   }
 
   /// Git stuff
@@ -263,7 +217,7 @@ int main(int argc, char *argv[])
   git_message_prettify(&buffer, "Commit made via notepush", 0, '#');
 
   // the parent is the most recent commit
-  git_commit *head = get_last_commit(repo);
+  git_commit *head = notepush::get_last_commit(repo);
   git_oid commit_oid;
   git_commit_create_v(
       &commit_oid,
@@ -279,40 +233,17 @@ int main(int argc, char *argv[])
 
   if (options.online)
   {
-    // git_remote *remote = NULL;
-    // if ((error = git_remote_lookup(&remote, repo, "origin")) != GIT_OK)
-    // {
-    //   std::cerr << "There was a problem getting the remote.\n";
-    //   goto done;
-    // }
-
-    // git_remote_connect(remote, GIT_DIRECTION_PUSH, NULL, NULL, NULL);
-
-    // git_remote_add_push(repo, "origin", "refs/heads/master:refs/heads/master");
-
-    //      // configure options
-    
-    //  git_push_options options;
-    //  git_push_init_options( &options, GIT_PUSH_OPTIONS_VERSION );
-
-    //  options.callbacks.credentials = git_cred_cb;
-
-    //  // do the push
-    //  git_remote_upload( remote, NULL, &options );
-
     std::string command = "cd ";
     command += options.repo;
     command += "; git push origin master";
 
     system (&command[0]);
-
   }
 
 // Run "git status" to see the result.
 //system ("cd repository; git status");
 
 // Free resources.
-done:
   git_buf_free(&buffer);
   git_signature_free(signature);
   git_tree_free(tree);
