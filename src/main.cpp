@@ -36,7 +36,6 @@ struct Options
   bool online = false; // offline mode - when true, connections to the remote will not be performed.
 };
 
-
 char *get_cmd_option(char **begin, char **end, const std::string &option)
 {
   char **itr = std::find(begin, end, option);
@@ -119,17 +118,18 @@ int main(int argc, char *argv[])
 
   /* Open repository in given directory (or fail if not a repository) */
   error = git_repository_open_ext(&repo, &options.repo[0], GIT_REPOSITORY_OPEN_NO_SEARCH, NULL);
-  if (error)
+  if (error != 0)
   {
     std::cerr << "Repository: " << options.repo << " is not a valid git repo.\n";
     std::cerr << "Please create a valid repository in the provided repo path.\n";
+    std::cerr << giterr_last()->message << std::endl;
 
     return 1;
   }
 
-
   /*
-  The user provides a note with hashtags being used as the topical indicators. 
+  The user provides a note with '@' used to delimit the topics
+  i.e. psh This is a note @Topic1
 
   The repo will contain the following files:
 
@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
     {
       topics.emplace(std::string(argv[i]));
     }
-    else if (argv[i][0] == '-' && argv[i][1] == 'o') //ignore -o option
+    else if (argv[i][0] == '-' && argv[i][1] == 'o') // ignore -o option
     {
       continue;
     }
@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
   {
     std::string command = "cd ";
     command += options.repo;
-    command += "; git pull origin master";
+    command += "&& git pull origin master";
 
     system (&command[0]);
   }
@@ -182,12 +182,18 @@ int main(int argc, char *argv[])
     notepush::write_note(options.repo + "/" + topic.substr(1) + ".txt", note.str());
   }
 
-  /// Git stuff
-
-  // Run the equivalent of "git add ."
-
-  // Get the git index.
   git_index *index = NULL;
+  git_oid tree_oid;
+  git_signature *signature;
+  git_tree *tree;
+  git_buf buffer;
+  git_commit *head = notepush::get_last_commit(repo);
+  git_oid commit_oid;
+
+  memset(&buffer, 0, sizeof(git_buf));
+
+  // git add .
+  // Get the git index.
   error = git_repository_index(&index, repo);
   if (error != 0)
     std::cerr << giterr_last()->message << std::endl;
@@ -201,24 +207,14 @@ int main(int argc, char *argv[])
   error = git_index_write(index);
   if (error != 0)
     std::cerr << giterr_last()->message << std::endl;
+  
+  // END git add .
 
-  // build a tree from the index
-  git_oid tree_oid;
+  // git commit -a -m "Commit made via notepush"
   git_index_write_tree(&tree_oid, index);
-
-  // create the commit
-  git_signature *signature;
   git_signature_new(&signature, "Notepush", "notepush@fake.com", std::time(nullptr), 0);
-  git_tree *tree;
   git_tree_lookup(&tree, repo, &tree_oid);
-
-  git_buf buffer;
-  memset(&buffer, 0, sizeof(git_buf));
   git_message_prettify(&buffer, "Commit made via notepush", 0, '#');
-
-  // the parent is the most recent commit
-  git_commit *head = notepush::get_last_commit(repo);
-  git_oid commit_oid;
   git_commit_create_v(
       &commit_oid,
       repo,
@@ -230,20 +226,18 @@ int main(int argc, char *argv[])
       tree,
       1,
       head);
+  // END git commit -a -m "Commit made via notepush"
 
   if (options.online)
   {
     std::string command = "cd ";
     command += options.repo;
-    command += "; git push origin master";
+    command += "&& git push origin master";
 
     system (&command[0]);
   }
 
-// Run "git status" to see the result.
-//system ("cd repository; git status");
-
-// Free resources.
+// Free resources used by libgit2.
   git_buf_free(&buffer);
   git_signature_free(signature);
   git_tree_free(tree);

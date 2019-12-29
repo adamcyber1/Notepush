@@ -23,9 +23,9 @@
 
 static const char *const HEADER = "\nnotepush - Adam F.\n\n";
 static const char *const USAGE = "Usage:\n"
-                                 "\tpsh -r #reset the config"
-                                 "\tpsh Some notes I want committed to a local repo @topic1 @topic2"
-                                 "\tpsh -o Some notes I want committed and pushed to a remote @topic1 @topic2"
+                                 "\tpsh -r #reset the config\n"
+                                 "\tpsh Some notes I want committed to a local repo @topic1 @topic2\n"
+                                 "\tpsh -o Some notes I want committed and pushed to a remote @topic1 @topic2\n"
                                  "\n\n"
                                  "Description:\n"
                                  "\tA note taking utility that leverages git source control to organize notes."

@@ -20,8 +20,3 @@
 
 #include <gtest/gtest.h>
 #include <notepush.h>
-
-TEST(config, first)
-{
-    EXPECT_EQ(1, 1);
-}

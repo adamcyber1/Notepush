@@ -82,8 +82,6 @@ void test() {
   git_repository_free(repo);
 
 }
-
-
 }
 
 
