@@ -3,10 +3,6 @@ cmake_policy(VERSION 3.11)
 
 project(Notepush)
 
-if (NOT (UNIX))
-  message(FATAL_ERROR "unsupported target platform...windows isn't supported yet")
-endif()
-
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # languages

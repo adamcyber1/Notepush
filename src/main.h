@@ -29,7 +29,10 @@ static const char *const USAGE = "Usage:\n"
                                  "\n\n"
                                  "Description:\n"
                                  "\tA note taking utility that leverages git source control to organize notes."
-                                 "\n"
+                                 "\n\n"
+                                 "Options:\n"
+                                 "\t-r      Reset the config.\n"
+                                 "\t-o      Run in online mode.\n"
                                  ;
 
 #endif //PROJECT_MAIN_H
