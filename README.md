@@ -1,21 +1,17 @@
 Notepush
 ====================================
 
-Command line tool that pushes notes to git.
-
-Features
-========
-
-Notetaking utility that doesn't require you to leave the command line. 
-Notes are automatically
+Command line tool that pushes notes to git. I made this so that I could quickly take notes from the command line without disrupting my work flow. 
 
 
 Examples
 =======
 
+
+
 ```console
 foo@bar:~$ psh A profound hockey related thought @hockey
-foo@bar:-$ psh Wayne Gretzky played for edmonton @hockey
+foo@bar:-$ psh Wayne Gretzky played for edmonton @hockey @edmonton
 foo@bar:-$ psh -o Another note # all local changes are pushed to remote due to '-o' option.
 ```
 

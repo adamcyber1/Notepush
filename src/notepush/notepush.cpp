@@ -25,7 +25,6 @@
 
 namespace notepush
 {
-
 void write_note(const std::string &path, const std::string &note)
 {
   std::fstream outfile;
