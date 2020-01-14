@@ -31,8 +31,10 @@ static const char *const USAGE = "Usage:\n"
                                  "\tA note taking utility that leverages git source control to organize notes."
                                  "\n\n"
                                  "Options:\n"
-                                 "\t-r      Reset the config.\n"
-                                 "\t-o      Run in online mode.\n"
+                                 "\t-r          Reset the config.\n"
+                                 "\t-o          Run in online mode.\n"
+                                 "\t-a          List all topic files.\n"
+                                 "\t-l <topic>  Print a specific topic's contents.\n"
                                  ;
 
 #endif //PROJECT_MAIN_H
