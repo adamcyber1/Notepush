@@ -23,3 +23,7 @@ script:
 
   #install libgit2
   - apt-get install -y libgit2-dev
+  - mkdir build && cd build
+  - cmake ..
+  - make -j
+  - make install
