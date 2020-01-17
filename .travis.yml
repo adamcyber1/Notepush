@@ -20,9 +20,9 @@ script:
   - export CC=/usr/bin/gcc-9
   - export CXX=/usr/bin/g++-9
   - gcc -v && g++ -v && cmake --version
-
   #install libgit2
   - sudo apt-get install -y libgit2-dev
+  - ls -al
   - mkdir build && cd build
   - cmake ..
   - make -j
