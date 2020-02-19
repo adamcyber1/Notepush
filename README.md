@@ -49,11 +49,6 @@ notepush will ask for the base directory of your git repository.
 
     $ sudo psh
     
-Test
-==========================
-
-There are no tests yet.
-
 License
 =======
 
